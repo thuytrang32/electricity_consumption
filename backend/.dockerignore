@@ -1,0 +1,8 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+*.db
+.env
+# Raw RTE files are needed for offline training, not for the inference image.
+data/
+tests/

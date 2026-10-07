@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+backend/tests/test.db
+backend/electricity.db
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Environment
+.env
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

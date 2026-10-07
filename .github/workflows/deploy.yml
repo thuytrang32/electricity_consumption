@@ -1,0 +1,39 @@
+name: Deploy to Docker host
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (latest or a commit SHA)"
+        required: true
+        default: "latest"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+      - name: Deploy selected images
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          GHCR_OWNER: ${{ github.repository_owner }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          OWNER=$(echo "$GHCR_OWNER" | tr '[:upper:]' '[:lower:]')
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "\
+            cd /opt/electricity-predictor && \
+            export BACKEND_IMAGE=ghcr.io/$OWNER/electricity-backend:$IMAGE_TAG && \
+            export FRONTEND_IMAGE=ghcr.io/$OWNER/electricity-frontend:$IMAGE_TAG && \
+            docker compose -f docker-compose.prod.yml pull && \
+            docker compose -f docker-compose.prod.yml up -d && \
+            curl --fail --retry 10 --retry-delay 3 http://localhost/health\
+          "

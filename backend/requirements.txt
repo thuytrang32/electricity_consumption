@@ -1,0 +1,11 @@
+fastapi==0.128.2
+uvicorn[standard]==0.48.0
+pandas==2.2.3
+numpy>=2.0,<3.0
+scikit-learn==1.6.1
+scipy>=1.13,<2.0
+joblib==1.5.3
+holidays>=0.40
+SQLAlchemy==2.0.50
+psycopg[binary]>=3.2,<4.0
+pydantic==2.13.4
